@@ -20,9 +20,12 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - id: tag_version_split
       uses: actions/github-script@0.9.0
+      env:
+          version_string: "${{ steps.tag_version.outputs.new_tag }}"
       with:
         script: |
-          const version = context.steps.tag_version.outputs.new_tag.value.split('-')
+          const { version_string } = process.env
+          cont  version = version_string.split('.')
           core.setOutput('major', version[0])
           core.setOutput('minor', version[1])
           core.setOutput('patch', version[2])
