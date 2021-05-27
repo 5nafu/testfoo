@@ -19,16 +19,13 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - id: tag_version_split
-      uses: actions/github-script@0.9.0
-      env:
-          version_string: "${{ steps.tag_version.outputs.new_tag }}"
-      with:
-        script: |
-          const { version_string } = process.env
-          cont  version = version_string.split('.')
-          core.setOutput('major', version[0])
-          core.setOutput('minor', version[1])
-          core.setOutput('patch', version[2])
+      run:
+        major=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d. -f1)
+        echo "::set-output name=major::$major"
+        minor=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d. -f2)
+        echo "::set-output name=minor::$minor"
+        patch=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d. -f3)
+        echo "::set-output name=patch::$patch"
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v3
