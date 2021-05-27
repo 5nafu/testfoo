@@ -1,0 +1,43 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: 
+     - main
+  pull_request:
+    branches:
+    - 'main'
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Bump version and push tag
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v5.5
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - id: tag_version_split
+      uses: actions/github-script@0.9.0
+      with:
+        script: |
+          const version = context.steps.tag_version.outputs.new_tag.value.split('-')
+          core.setOutput('major', version[0])
+          core.setOutput('minor', version[1])
+          core.setOutput('patch', version[2])
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+          # list of Docker images to use as base name for tags
+          images: |
+            docker.pkg.github.com/idealo/compute-github-runner-dind-shell-operator/compute-github-runner-dind-shell-operator
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+    - name: DEBUG
+      run: |
+        echo "Tags: ${{ steps.meta.outputs.tags }}"
+        echo "Labels: ${{ steps.meta.outputs.labels }}"
