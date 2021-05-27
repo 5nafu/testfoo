@@ -1,14 +1,9 @@
-name: Docker Image CI
-
+---
+name: Tag release
 on:
   push:
     branches:
     - main
-    tags: 
-    - "v.*.*.*"
-  pull_request:
-    branches:
-    - 'main'
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -18,13 +13,28 @@ jobs:
       uses: mathieudutour/github-tag-action@v5.5
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+---
+name: Docker Image CI
+on:
+  push:
+    tags: 
+    - "v.*.*.*"
+  pull_request:
+    branches:
+    - 'main'
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
     - id: tag_version_split
+      if: github.event_name != 'pull_request'
       run:
-        major=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d. -f1)
+        tag=${GITHUB_REF/refs\/tags\//}
+        major=$(echo $tag | cut -d. -f1)
         echo "::set-output name=major::$major"
-        minor=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d. -f2)
+        minor=$(echo $tag | cut -d. -f2)
         echo "::set-output name=minor::$minor"
-        patch=$(echo ${{ steps.tag_version.outputs.new_tag }} | cut -d. -f3)
+        patch=$(echo $tag | cut -d. -f3)
         echo "::set-output name=patch::$patch"
     - name: Docker meta
       id: meta
@@ -39,7 +49,11 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-    - name: DEBUG
+    - name: DEBUG Docker meta
       run: |
         echo "Tags: ${{ steps.meta.outputs.tags }}"
         echo "Labels: ${{ steps.meta.outputs.labels }}"
+    - name: DEBUG version_split
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "Delete: ~${{ steps.tag_version_split.outputs.major }}.${{ steps.tag_version_split.outputs.minor }}.0"
