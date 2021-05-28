@@ -23,12 +23,12 @@ jobs:
       env:
         tag: "${{ steps.tag_version.outputs.new_tag }}"
       run:
-        major=$(echo $tag | cut -d. -f1)
-        echo "::set-output name=major::$major"
-        minor=$(echo $tag | cut -d. -f2)
-        echo "::set-output name=minor::$minor"
-        patch=$(echo $tag | cut -d. -f3)
-        echo "::set-output name=patch::$patch"
+        major=$(echo $tag | cut -d. -f1);
+        echo "::set-output name=major::$major";
+        minor=$(echo $tag | cut -d. -f2);
+        echo "::set-output name=minor::$minor";
+        patch=$(echo $tag | cut -d. -f3);
+        echo "::set-output name=patch::$patch";
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v3
@@ -39,9 +39,9 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=ref,event=pr
-            type=semver,pattern={{version}},value=${{ steps.tag_version.outputs.new_tag }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.tag_version.outputs.new_tag }}
-            type=semver,pattern={{major}},value=${{ steps.tag_version.outputs.new_tag }}
+            type=semver,pattern={{version}},value=${{ steps.tag_version.outputs.new_tag }},prefix=v
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.tag_version.outputs.new_tag }},prefix=v
+            type=semver,pattern={{major}},value=${{ steps.tag_version.outputs.new_tag }},prefix=v
     - name: DEBUG Docker meta
       run: |
         echo "Tags: ${{ steps.meta.outputs.tags }}"
