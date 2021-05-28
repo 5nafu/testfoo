@@ -1,0 +1,52 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Bump version and push tag
+      id: tag_version
+      if: github.event_name != 'pull_request'
+      uses: mathieudutour/github-tag-action@v5.5
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - id: tag_version_split
+      if: github.event_name != 'pull_request'
+      env:
+        tag: "${{ steps.tag_version.outputs.new_tag }}"
+      run:
+        major=$(echo $tag | cut -d. -f1)
+        echo "::set-output name=major::$major"
+        minor=$(echo $tag | cut -d. -f2)
+        echo "::set-output name=minor::$minor"
+        patch=$(echo $tag | cut -d. -f3)
+        echo "::set-output name=patch::$patch"
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+          # list of Docker images to use as base name for tags
+          images: |
+            docker.pkg.github.com/idealo/compute-github-runner-dind-shell-operator/compute-github-runner-dind-shell-operator
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}},value=${{ steps.tag_version.outputs.new_tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.tag_version.outputs.new_tag }}
+            type=semver,pattern={{major}},value=${{ steps.tag_version.outputs.new_tag }}
+    - name: DEBUG Docker meta
+      run: |
+        echo "Tags: ${{ steps.meta.outputs.tags }}"
+        echo "Labels: ${{ steps.meta.outputs.labels }}"
+    - name: DEBUG version_split
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "Delete: ~${{ steps.tag_version_split.outputs.major }}.${{ steps.tag_version_split.outputs.minor }}.0"
