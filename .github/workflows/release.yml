@@ -1,12 +1,12 @@
-name: Docker Image CI
+name: Build and Release
 
 on:
   push:
     branches:
-     - main
+    - main
   pull_request:
     branches:
-    - 'main'
+    - main
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
     - id: tag_version_split
       if: github.event_name != 'pull_request'
       env:
-	  - tag: "${{ steps.tag_version.outputs.new_tag }}"
+	    tag: "${{ steps.tag_version.outputs.new_tag }}"
       run:
         major=$(echo $tag | cut -d. -f1)
         echo "::set-output name=major::$major"
