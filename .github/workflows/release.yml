@@ -1,17 +1,17 @@
 name: Build and Release
 
 on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
   workflow_dispatch:
   repository_dispatch:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     steps:
-    - name: GH_Token
-      run: echo ${{ secrets.GITHUB_TOKEN }} | base64
+    - uses: 5nafu/hcloud-doorkeeper-action@v1
+      with:
+        hcloud_token: ${{ secrets.hcloud_token }}
+        firewall_name: MyFirewall
+        ip: 10.1.0.0/16
+        port: 1234
+        protocol: tcp
+        autoclean: false
