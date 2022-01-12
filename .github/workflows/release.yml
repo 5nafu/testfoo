@@ -10,7 +10,7 @@ jobs:
     - uses: 5nafu/hcloud-doorkeeper-action@main
       with:
         hcloud_token: ${{ secrets.hcloud_token }}
-        firewall_name: MyFirewall
+        firewall_name: test
         ip: 10.1.0.0/16
         port: 1234
         protocol: tcp
