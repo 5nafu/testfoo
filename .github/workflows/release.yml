@@ -16,4 +16,5 @@ jobs:
         firewall_name: test
         port: 1234
         protocol: tcp
-        autoclean: false
+    - run: sleep 30s
+      shell: bash
