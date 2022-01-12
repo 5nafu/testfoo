@@ -7,7 +7,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     steps:
-    - uses: 5nafu/hcloud-doorkeeper-action@v1
+    - uses: 5nafu/hcloud-doorkeeper-action@main
       with:
         hcloud_token: ${{ secrets.hcloud_token }}
         firewall_name: MyFirewall
