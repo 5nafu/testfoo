@@ -16,5 +16,7 @@ jobs:
         firewall_name: test
         port: 1234
         protocol: tcp
+    - run: wget -O- -q http://ifconfig.me/ip
+      shell: bash
     - run: sleep 30s
       shell: bash
